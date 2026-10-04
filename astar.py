@@ -58,3 +58,4 @@ def _reconstruct(came_from, goal):
         cell = came_from[cell]
     path.reverse()
     return path
+#comentariu
