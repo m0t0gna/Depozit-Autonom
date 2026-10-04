@@ -7,6 +7,8 @@ Harta e un grid (o matrice de celule). Fiecare celula e fie libera, fie blocata
 
 class Grid:
     def __init__(self, width, height):
+        if width <= 0 or height <= 0:
+            raise ValueError("Dimensiunile hartii trebuie sa fie pozitive.")
         self.width = width
         self.height = height
         # Retinem doar celulele BLOCATE, intr-un set: verificarea
@@ -43,7 +45,7 @@ def make_warehouse(width=30, height=20):
     grid = Grid(width, height)
     # Blocuri de rafturi: 2 randuri late, separate de culoare de 2 celule.
     for row_start in (3, 9, 15):
-        for y in range(row_start, row_start + 2):
+        for y in range(row_start, min(row_start + 2, height)):
             for x in range(4, width - 4):
                 # lasam goluri la fiecare 8 celule ca sa se poata trece dintr-un culoar in altul
                 if (x - 4) % 8 != 7:
