@@ -27,3 +27,4 @@ if __name__ == "__main__":
     for name, fn in list(globals().items()):
         if name.startswith("test_"):
             fn(); print("OK", name)
+#ccccc
