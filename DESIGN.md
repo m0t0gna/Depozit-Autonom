@@ -107,3 +107,13 @@ si se leaga de pozitia animata a robotului. Nu folosi set() pentru ordinea pasil
 `route_view.py` completeaza prefixul limitat cu o continuare A* orientativa;
 textul din panou explica faptul ca traficul poate ajusta ruta. Nu prezenta
 previzualizarea completa drept rezervare garantata.
+
+
+## Praf de viraj
+
+Trei pufuri de 22x22 pixeli, cu contur in trepte si cinci faze de disipare,
+folosesc gri-bej si crem semitransparent. Durata: 460 ms. Se emit pe exteriorul
+curbei, sub sprite-ul robotului; niciun blur sau textura externa. Sursa este
+`turn_effects.py`, declansarea apartine clasei vizuale `Animation`. Praful nu
+este un obstacol si nu indica defectiunea robotului. Vezi `artifacts/turn-dust.png`
+pentru fazele 0/40/120/260/470 ms. Particulele existente dispar natural si in pauza.

@@ -1,6 +1,7 @@
 """Randare retro a flotei; geometrie comuna pentru desenare si interactiuni."""
 import pygame
 from route_view import display_route
+from turn_effects import TurnDust
 from atelier_decor import workshop_floor, desk_plant
 from pixel_art import (INK, PAPER, CREAM, MUTED, LINE, TEAL, TERRA, COLORS, NAMES,
                        robot_sprite, tile_sprite, pixel_text, crate_sprite)
@@ -62,15 +63,26 @@ class Animation:
     """Orientare/interpolare vizuala. Pozitiile logice raman intregi."""
     def __init__(self):
         self.frames = {}
+        self.dust = TurnDust()
 
     def capture(self, fleet, duration, now):
+        self.dust.expire(now)
         for robot in fleet.robots:
             old = self.frames.get(robot.id)
             start = old['end'] if old else robot.pos
             dx, dy = robot.pos[0] - start[0], robot.pos[1] - start[1]
+            direction = (dx, dy)
+            previous = old.get('direction') if old else None
+            if abs(dx) + abs(dy) == 1:
+                if previous is not None and previous != direction:
+                    self.dust.emit(start, previous, direction, now)
+            elif dx == dy == 0:
+                direction = previous
+            else:
+                direction = None  # Teleport/reset: nu este un viraj.
             facing = ('right' if dx > 0 else 'left') if dx else ('down' if dy > 0 else 'up') if dy else (old['facing'] if old else 'down')
             self.frames[robot.id] = dict(start=start, end=robot.pos, time=now,
-                                        duration=duration, facing=facing)
+                                        duration=duration, facing=facing, direction=direction)
 
     def position(self, robot, now):
         frame = self.frames.get(robot.id)
@@ -156,6 +168,11 @@ def draw(screen, font, fleet, selected=1, paused=False, speed=120,
     if pickup is not None:
         hx, hy = center(pickup)
         pygame.draw.rect(screen, TERRA, (hx - 14, hy - 14, 28, 28), 3)
+    if animation is not None:
+        previous_clip = screen.get_clip()
+        screen.set_clip(pygame.Rect(MAP_X, HEADER, grid.width * CELL, grid.height * CELL).clip(previous_clip))
+        animation.dust.draw(screen, now, (MAP_X, HEADER), CELL)
+        screen.set_clip(previous_clip)
     for robot in fleet.robots:
         pos, facing, moving = animation.position(robot, now) if animation else (robot.pos, 'down', False)
         cx, cy = center(pos)

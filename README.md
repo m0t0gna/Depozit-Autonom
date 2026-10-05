@@ -7,7 +7,7 @@ robotii, bazele si trei iesiri A–C. Utilizatorul construieste depozitul.
 Traseele sunt ascunse implicit; podeaua are textura discreta, fara grila de celule, iar panoul
 arata echipa, comenzile si instructiunile esentiale.
 
-**83 de teste trecute.** Aspectul retro, modelele pixel art, alocarea A* si
+**87 de teste trecute.** Aspectul retro, modelele pixel art, alocarea A* si
 coordonarea spatio-temporala sunt pastrate. Directia vizuala este in
 [DESIGN.md](DESIGN.md); capturile pot fi regenerate local.
 
@@ -137,7 +137,7 @@ Estimari din ideea initiala: 1–2 saptamani etapa 1, doua etapa 2, 3–4 etapa 
 .\.venv\Scripts\python.exe benchmark.py --robots 8 --seeds 7 19 42 --ticks 600 --jobs 20 --interval 20 --output artifacts/benchmark.json
 ```
 
-Testele actuale: **83 passed**. Sunt acoperite A*, siguranta, refugii,
+Testele actuale: **87 passed**. Sunt acoperite A*, siguranta, refugii,
 reproductibilitate, click unic, ajutor modal, geometrie, selectie in timpul
 animatiei, pornire goala, unelte, livrarea cutiilor puse manual si reset complet.
 Capturile 3/5/8, ajutorul si plansa de sprite-uri sunt regenerabile; randarea
@@ -225,3 +225,23 @@ intoarceri, pereti noi, tinta inaccesibila, selectia prin iconite si actualizare
 in timpul miscarii. `artifacts/selected-route.png` arata un exemplu cu ruta activa;
 capturile obisnuite continua sa arate pornirea goala. Toate sunt regenerate de
 `render_preview.py`. Pentru reluare, citeste `route_view.py` si `DepotUI.select_robot`.
+
+
+### Efect de praf la viraje — checkpoint actual
+
+**87 de teste trecute.** La schimbarea reala a directiei apar trei pufuri pixel
+art pe exteriorul curbei, langa senile. Se deplaseaza usor si dispar in 460 ms.
+Nu apar la prima deplasare, mers drept, asteptare sau teleport/reset. Dupa o
+asteptare, un viraj real este detectat fata de ultima directie de deplasare.
+
+`turn_effects.py` contine sprite-urile si particulele (maximum 96 simultan).
+`Animation.capture()` detecteaza virajul, iar `retro_view.draw()` deseneaza praful
+sub roboti, decupat la harta. Particulele folosesc timpul vizual real: cele deja
+emise isi termina animatia si in pauza; nu se emit altele fara miscari noi.
+Efectul nu consuma RNG-ul flotei si nu schimba sarcinile, traseele sau coliziunile.
+Resetarea recreeaza Animation si elimina particulele.
+
+`test_turn_effects.py` verifica viraje, asteptare, expirare, limita particulelor
+si reset/teleport. `python render_preview.py` regenereaza si secventa vizuala
+`artifacts/turn-dust.png`. La reluare, modifica intensitatea/durata in
+`turn_effects.py`, pastrand efectul discret si strict vizual.

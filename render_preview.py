@@ -35,6 +35,23 @@ def main():
                      message=ui.commands.message, now=360, animation=ui.animation)
                 pygame.image.save(screen, target / 'selected-route.png')
 
+        # Secventa demonstrativa de viraj; doar fixture vizual, nu comenzi in simulator.
+        demo = Fleet(robot_count=1, grid=Grid(30, 20), pickups=[], starts=[(3, 3)])
+        demo_ui = DepotUI(demo)
+        demo.robots[0].pos = (4, 3)
+        demo_ui.animation.capture(demo, 200, 120)
+        demo.robots[0].pos = (4, 4)
+        demo_ui.animation.capture(demo, 200, 240)
+        strip = pygame.Surface((710, 194))
+        strip.fill(PAPER)
+        strip.blit(pixel_text('PRAF LA VIRAJ', 2, TEAL), (16, 12))
+        for i, now in enumerate((240, 280, 360, 500, 710)):
+            frame = pygame.Surface(window_size(demo.grid))
+            draw(frame, font, demo, now=now, animation=demo_ui.animation)
+            strip.blit(frame, (16 + i * 138, 39), pygame.Rect(100, 158, 130, 120))
+            strip.blit(font.render(f'{now - 240} ms', False, MUTED), (16 + i * 138, 170))
+        pygame.image.save(strip, target / 'turn-dust.png')
+
         sheet = pygame.Surface((840, 444))
         sheet.fill(PAPER)
         sheet.blit(pixel_text('MICUL DEPOZIT / PIXEL ATLAS', 3, TEAL), (24, 20))
