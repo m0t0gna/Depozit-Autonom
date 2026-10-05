@@ -1,72 +1,17 @@
-# Depozit Autonom — simulator de flota
+# Micul Depozit — simulator de flota retro 2D
 
-## Ideea proiectului
+## Checkpoint actual — 5 octombrie 2026
 
-Construim un simulator de depozit automatizat: o harta cu rafturi, puncte de
-preluare, zone de incarcare/descarcare si 3–8 roboti care executa comenzi precum
-„muta cutia de la raftul 3 la iesirea B”. Scopul este sa implementam creierul
-flotei: alocare, planificare, coordonare si reactie la obstacole, cu o interfata
-care explica deciziile. Este o versiune educationala a problemelor intalnite
-in automatizarile industriale si in sisteme precum Amazon Robotics sau Locus
-Robotics, nu o reproducere a sistemelor lor.
+**Pornire simpla: fara pereti, cutii sau comenzi.** Pe harta exista doar
+robotii, bazele si trei iesiri A–C. Utilizatorul construieste depozitul.
+Traseele sunt ascunse implicit; podeaua are textura discreta, fara grila de celule, iar panoul
+arata echipa, comenzile si instructiunile esentiale.
 
-Fluxul dorit:
+**83 de teste trecute.** Aspectul retro, modelele pixel art, alocarea A* si
+coordonarea spatio-temporala sunt pastrate. Directia vizuala este in
+[DESIGN.md](DESIGN.md); capturile pot fi regenerate local.
 
-1. Apare o comanda cu punct de preluare si destinatie.
-2. Sistemul alege cel mai apropiat robot liber.
-3. Robotul planifica prin A*, merge la preluare si incarca cutia.
-4. Coordonatorul gestioneaza accesul la culoare, asteptarea si ocolirea.
-5. Robotul livreaza cutia; un obstacol pus live declanseaza replanificarea.
-6. Interfata arata robotii, traseele, comenzile si deciziile, de exemplu
-   „Robot 2 asteapta: culoar ocupat de Robot 1”.
-
-Arhitectura tinta:
-
-```text
-Interfata web: harta, obstacole, sarcini, log, statistici
-                         |
-                Server Python / simulator
-             /           |             \
-       Alocare        Planificare     Coordonare
-       sarcini           A*          trafic / rezervari
-```
-
-Incepem centralizat: un coordonator vede intreaga flota. Algoritmii sunt
-deterministi; LLM-ul nu face parte din nucleu. ROS 2 nu este necesar initial.
-Coordonarea distribuita, o interfata in limbaj natural si portarea pe ROS 2 +
-Nav2 raman extensii. Interfata actuala este **Pygame**; **serverul si interfata
-web nu sunt implementate**. Motorul flotei nu importa Pygame si poate fi
-reutilizat ulterior de server.
-
-## Starea actuala / de unde se reia lucrul
-
-**Checkpoint: 4 octombrie 2026, actualizarea 2.** Etapa 2 functioneaza;
-etapa 3 are acum A* spatio-temporal si rezolvarea conflictelor pe o fereastra
-limitata; etapa 5 a inceput cu un benchmark comparativ headless.
-
-- 5 roboti implicit, 3–8 configurabili; P1–P6 pentru preluare, A–C pentru livrare.
-- 5 comenzi la pornire, loturi, generator cu seed si comenzi manuale.
-- **Un singur click dreapta creeaza comanda catre celula aleasa**, cu preluarea
-  selectata automat dintre statiile accesibile, dupa cel mai scurt traseu A*.
-- Shift+click dreapta alege explicit preluarea; urmatorul click dreapta alege
-  livrarea. Mesajul de sub harta confirma comanda sau explica de ce nu se poate crea.
-- Alocare FIFO pentru comenzile executabile, robot disponibil ales dupa distanta A*.
-- Ciclu preluare -> transport -> livrare -> baza; robotii care revin sunt disponibili.
-- Coordonator implicit `window`: rezervari pe 12 tick-uri, conflicte de celule si
-  traversari, actiune de asteptare si folosirea refugiilor in scenariile testate.
-- Coordonator `conservative` pastrat ca referinta si fallback pentru bugetul depasit.
-- Obstacole live, invalidarea rezervarilor, verificare comuna a sigurantei miscarii.
-- Pauza, pas cu pas, viteza, trasee, statistici si jurnal. Dupa 30 de tick-uri
-  consecutive de asteptare, jurnalul semnaleaza lipsa de progres.
-- Benchmark JSON cu sarcini identice intre coordonatori, latenta, distante,
-  asteptari, conflicte si timpi de executie.
-- Demo-ul original ramane disponibil cu `--single`.
-
-**Nu exista o garantie generala de absenta a deadlock-urilor.** Testul cu
-refugiu lateral este rezolvat de coordonatorul nou; culoarul fara refugiu,
-tintele permanent ocupate si limitele cautarii raman cazuri problematice.
-
-## Instalare si pornire
+## Pornire
 
 PowerShell, Python 3.12:
 
@@ -76,220 +21,207 @@ python -m venv .venv
 .\.venv\Scripts\python.exe main.py
 ```
 
-Pentru utilizare fara teste, este suficient `requirements.txt`.
+Mediul existent `.venv` poate fi refolosit. Pentru rulare fara teste ajunge
+`requirements.txt`. Nu exista descarcari de sprite-uri sau dependinte grafice noi.
 
 ```powershell
-# Flota de 8 roboti; acelasi seed reproduce comenzile aleatorii
 .\.venv\Scripts\python.exe main.py --robots 8 --seed 42
-
-# Comparatorul conservator
 .\.venv\Scripts\python.exe main.py --coordination conservative
-
-# Demo-ul initial, cu un singur robot
 .\.venv\Scripts\python.exe main.py --single
-
-# Toate testele
-.\.venv\Scripts\python.exe -m pytest -q
 ```
 
-## Comenzi in modul flota
+`--single` pastreaza demo-ul original, cu harta si grafica veche. Pornirea goala
+si editorul simplificat sunt comportamentul implicit al modului flota.
+
+## Cum construiesti
+
+1. Alege **PERETI [W]**, apoi click stanga pentru a pune/scoate un perete.
+2. Alege **CUTII [T]**, apoi click stanga pe o celula libera pentru a pune o cutie.
+3. Robotul disponibil cel mai apropiat o preia si o duce la iesirea accesibila
+   cea mai apropiata de cutie, dupa distanta A*.
+4. Poti apasa PAUZA inainte de a construi si CONTINUA cand harta e pregatita.
+
+Cutia apare pe harta pana la preluare, apoi in fata robotului. Nu poti pune
+cutii peste pereti, roboti, baze, iesiri sau alte cutii care asteapta preluarea.
+Daca nu exista drum la nicio iesire, primesti un mesaj si cutia nu este creata.
 
 | Comanda | Actiune |
 | --- | --- |
-| Click stanga pe o celula | Adauga sau elimina obstacolul |
-| Click stanga pe un robot / tastele 1–8 | Selecteaza robotul pentru statistici |
-| Click dreapta | Creeaza imediat o comanda catre celula aleasa; preluare automata |
-| Shift+click dreapta, apoi click dreapta | Alege manual preluarea, apoi livrarea |
-| C | Anuleaza selectia unui punct de preluare |
-| T | Adauga o comanda aleatorie |
-| B | Adauga un lot de 5 comenzi |
-| A | Porneste/opreste generatorul automat |
-| Spatiu | Pauza / continua |
-| N | Un tick pentru intreaga flota, doar in pauza |
-| Sus / Jos | Creste / scade viteza (2–33,3 tick-uri/secunda) |
-| P | Afiseaza / ascunde traseele |
-| R | Reseteaza flota si comenzile, pastrand obstacolele |
-| Shift+R | Reseteaza flota, comenzile si harta |
-| Esc | Inchide aplicatia |
+| W / PERETI | Selecteaza unealta pentru pereti |
+| T / CUTII | Selecteaza unealta pentru cutii; nu genereaza comenzi aleatorii |
+| Click stanga pe harta | Foloseste unealta selectata |
+| Click dreapta | Pune direct o cutie cu livrare automata |
+| Click pe iconita / robot / 1–8 | Selecteaza robotul si afiseaza traseul lui |
+| Spatiu / PAUZA | Pauza sau continua |
+| N / UN PAS | Un tick, numai in pauza |
+| Sus / Jos | Regleaza viteza |
+| R | Reseteaza robotii si elimina comenzile/cutiile; pastreaza peretii |
+| Shift+R | Reseteaza totul la harta goala |
+| H / AJUTOR | Ajutor modal; simularea este suspendata cat timp e deschis |
+| Esc | Inchide ajutorul daca e deschis; altfel inchide aplicatia |
+| Shift+dreapta, apoi dreapta | Comanda avansata: preluare si destinatie explicite |
+| C | Anuleaza preluarea explicita |
 
-Resetarea pastreaza pauza, viteza, afisarea traseelor si optiunea generatorului.
-Dupa resetare, coada este goala; T/B adauga comenzi sau generatorul o repopuleaza.
-Generatorul automat porneste oprit; cand este activ, adauga o comanda la fiecare
-40 de tick-uri daca exista mai putin de 20 de comenzi in asteptare.
+A/B si generatorul automat nu mai fac parte din interfata. Generatorul cu seed
+ramane disponibil in motor pentru benchmark. P1–P6 nu mai sunt preamplasate in
+interfata goala. Totalul din antet reprezinta coada; panoul arata primele trei
+comenzi nefinalizate. Logul tehnic ramane in motor, dar nu aglomereaza ecranul.
 
-P1–P6 sunt puncte de serviciu accesibile langa rafturi. A–C sunt iesiri. Cercurile
-colorate indica bazele; patratul galben langa un robot indica o cutie transportata.
-Nu se pot bloca statiile, bazele, robotii sau capetele comenzilor nefinalizate.
-Comenzile cu preluare explicita pot folosi orice doua celule libere distincte.
-Un click obisnuit alege cea mai apropiata statie P accesibila fata de destinatie
-si diferita de aceasta. El creeaza o sarcina pentru flota, nu intrerupe misiunea
-robotului selectat. Daca toti robotii sunt ocupati, comanda asteapta alocarea.
-Daca nu exista preluare accesibila, UI-ul afiseaza motivul si nu creeaza comanda.
-Comenzile explicite fara traseu static raman in asteptare si sunt reanalizate.
-O apasare repetata poate crea o alta comanda; nu mai este necesar un al doilea
-click pentru confirmare in modul implicit.
+## Ideea si arhitectura
 
-In modul `--single`: click dreapta stabileste direct tinta, E comuta explorarea,
-R reseteaza robotul, Shift+R restaureaza harta. Spatiu/N/Sus/Jos/Esc functioneaza
-ca inainte. T/B/A/P si comenzile de transport apartin modului flota.
+Construim un simulator de depozit automatizat cu 3–8 roboti care transporta
+cutii fara coliziuni: creare comanda -> alocare -> A* -> coordonare -> livrare.
+Obstacolele introduse live declanseaza replanificarea. Interfata explica actiunile.
+Este o versiune educationala a problemelor din automatizari industriale.
 
-## Cum functioneaza implementarea curenta
+Arhitectura tinta: interfata web -> server Python -> alocare / planificare /
+coordonare. Deocamdata interfata este Pygame; motorul este separat si nu importa
+Pygame. Coordonarea este centralizata si determinista. Fara LLM in nucleu;
+ROS 2 + Nav2 si o interfata in limbaj natural sunt extensii ulterioare.
 
-### Alocare si sarcini
+### Motorul actual
 
-`Fleet.assign()` parcurge comenzile in ordinea crearii. Verifica daca exista
-traseu de la preluare la livrare, apoi compara distantele A* de la robotii
- disponibili la preluare. Egalitatile se rezolva prin ID. O comanda inaccesibila
-nu blocheaza alocarea urmatoarelor comenzi executabile. Acesta este un algoritm
-greedy, nu o optimizare globala Hungarian.
+- Comenzi FIFO executabile; robot disponibil ales dupa costul A* pana la preluare.
+- Faze: preluare, transport, livrare, revenire la baza. Revenirea poate fi
+  intrerupta de o noua alocare. Incarcarea/descarcarea sunt instantanee.
+- `WindowCoordinator`: A* pe `(celula, timp)`, asteptare, rezervari de celule si
+  muchii; respinge schimburile frontale. Ramificare de tip CBS pentru conflicte.
+- Orizont: 12 tick-uri, maximum 80 de noduri de cautare la nivel inalt. Planurile
+  sunt refolosite si invalidate la schimbarea hartii/tintelor/pozitiilor.
+- Fallback conservator daca bugetul nu produce solutie. Validare independenta a
+  fiecarui pas comun, inaintea modificarii pozitiilor robotilor.
+- Refugiul lateral este folosit in scenariul de test cu doi roboti in sens opus.
+  **Nu exista garantie generala de absenta a deadlock-urilor.** Culoarele fara
+  refugiu, tintele ocupate permanent si limitele cautarii pot impiedica progresul.
+- Robotii inactivi nu se muta automat pentru a elibera o tinta. Bazele nu simuleaza
+  baterii; cutiile sunt comenzi, fara inventar persistent al rafturilor.
 
-`Task` retine starea (`pending`, `assigned`, `carrying`, `completed`), robotul
-alocat si tick-urile de creare, alocare, preluare si finalizare. `FleetRobot`
-retine pozitia, baza, tinta, traseul, faza misiunii, pasii parcursi, asteptarile
-si livrarile. Incarcarea/descarcarea sunt instantanee la sosire. Cutia este
-reprezentata prin comanda; nu exista inca inventar persistent al rafturilor.
+`Fleet()` fara argumente pastreaza harta clasica si statiile pentru benchmarkuri
+si compatibilitatea testelor. `fleet_ui.run()` creeaza explicit un `Grid(30, 20)`
+gol si `pickups=[]`. Aceasta separare este intentionata: nu modifica scenariile
+benchmark doar pentru a schimba harta cu care porneste utilizatorul.
 
-### Siguranta miscarii si rezervarile
+## Etape si continuare
 
-`coordination.py` contine doi coordonatori, separati de motorul sarcinilor:
+| Etapa | Scop | Stare |
+| --- | --- | --- |
+| 1 | Grid + un robot + A* | Implementata; demo `--single` |
+| 2 | Flota + comenzi + alocare simpla | Implementata; 3–8 roboti |
+| 3 | Rezervari si evitare conflicte/deadlock | Partial: siguranta si CBS limitat; progresul general ramane deschis |
+| 4 | Obstacole live + replanificare | Implementata, inclusiv invalidarea rezervarilor |
+| 5 | Benchmark coordonare si alocare | Conservator vs. window implementat; Hungarian si comparator fara coordonare lipsesc |
+| 6 | LLM si ROS 2 + Nav2 | Optional, neinceputa |
 
-- `WindowCoordinator` planifica in spatiu-timp: `(celula, tick relativ)`, inclusiv
-  asteptarea pe loc. Foloseste distante spatiale exacte ca euristica. Tinta este
-  rezervata dupa sosire pana la sfarsitul ferestrei; pentru tinte mai indepartate
-  se planifica un prefix spre ele.
-- Cautarea comuna foloseste ramificare de tip CBS: gaseste primul conflict,
-  interzice pe rand celula sau muchia implicata fiecarui robot si replanifica
-  traseul afectat. Respinge si schimburile frontale. Robotii fara misiune sunt
-  rezervati stationar pentru intreaga fereastra.
-- Orizont implicit: 12 tick-uri; buget: 80 de noduri de nivel inalt. Planul comun
-  este reutilizat pe masura executarii si refacut cand se schimba tintele/harta,
-  robotii nu mai sunt unde era prevazut sau fereastra se epuizeaza.
-- Daca bugetul nu produce o solutie, se executa un pas cu `ConservativeCoordinator`:
-  pozitiile initiale ale celorlalti roboti sunt obstacole, iar destinatiile deja
-  alese in tick sunt rezervate. Acest fallback este sigur, dar poate astepta.
-- `Fleet.step()` valideaza independent miscarile comune prin `safe_joint_step()`
-  inainte sa modifice pozitiile. Detecteaza celule comune, schimburi frontale,
-  pasi prea lungi si intrarea in obstacole; un plan invalid opreste flota in acel tick.
+Estimari din ideea initiala: 1–2 saptamani etapa 1, doua etapa 2, 3–4 etapa 3,
+1–2 etapa 4, doua etapa 5. Acestea nu sunt termene promise.
 
-Fata de varianta veche, robotii pot acum urma in acelasi tick celula eliberata
-de robotul din fata, daca intregul plan comun este sigur. In testul cu doi roboti
-in sensuri opuse si un refugiu lateral, unul foloseste refugiul si ambii ajung
-la tinta. Asteptarea lunga este raportata, dar aceasta nu este o detectare
-formala a ciclurilor de deadlock.
+**Punct de reluare pentru urmatoarea sesiune:**
 
-### Limite cunoscute
+1. Ruleaza testele; citeste `DepotUI`, `retro_view.py` si `DESIGN.md` pentru UI.
+   Comportamentul nou este: W/T selecteaza unelte; harta si coada pornesc goale.
+2. Adauga salvare/incarcare JSON pentru harta si scenarii create de utilizator.
+3. Redimensionare pentru ecrane mici: UI-ul actual necesita 1320x810. Pastreaza
+   o singura conversie mouse -> canvas si testeaza marginile/hit-test-urile.
+4. Lista de comenzi cu scroll, stergerea unei cutii nealocate, feedback la livrare
+   si optiune pentru reducerea animatiei. Nu readauga linii decorative pe harta.
+5. Extinde scenariile dense, destinatiile comune si blocajele ciclice. Separa
+   siguranta de progres. Studiaza prioritati cu vechime si mutarea robotilor idle.
+6. Compara orizonturi/bugete si Hungarian vs. greedy; adauga CSV si grafice.
+7. Abia dupa stabilizarea motorului, construieste serverul Python si UI web.
 
-- Fara garantie de progres in orice harta: blocaje reciproce, asteptare la o
-  tinta ocupata si ocoliri repetate sunt posibile. Orizontul si bugetul sunt
-  finite; rezolvarea unui prefix nu demonstreaza progresul pe termen lung.
-- Bazele sunt parcari; nu exista inca baterie, incarcare electrica sau durate
-  fizice de incarcare/descarcare. Robotii ocupa exact o celula, fara inertie.
-- Comenzile si harta editata sunt in memorie; nu exista salvare/incarcare.
-  Istoricul comenzilor creste pe durata rularii, iar logul pastreaza 80 de mesaje.
-- Replanificarea este sincrona. Limita de noduri nu este un termen limita de
-  timp real. Coordonatorul nou costa mai mult CPU; nu este pretins optim global.
-- Robotii inactivi nu se muta automat pentru a elibera o tinta ocupata de ei.
-- Fara server web, Hungarian, comparator fara coordonare, ROS 2 sau integrare LLM.
-
-## Planul pe etape
-
-Estimarile de mai jos sunt cele din idee, nu termene promise.
-
-| Etapa | Livrabil | Estimare initiala | Stare |
-| --- | --- | --- | --- |
-| 1 | Grid + un robot + A* + vizualizare | 1–2 saptamani | Implementata; `--single` |
-| 2 | 4–5 roboti + sarcini aleatorii + alocare simpla | 2 saptamani | Implementata; implicit 5, configurabil 3–8 |
-| 3 | Rezervari spatio-temporale / prioritati, evitare conflicte si deadlock | 3–4 saptamani | Partial: A* spatio-temporal + CBS limitat; fara garantie generala de progres |
-| 4 | Obstacole live + replanificare | 1–2 saptamani | Implementata, inclusiv invalidarea rezervarilor |
-| 5 | Benchmark: fara/cu coordonare, naiv/Hungarian | 2 saptamani | Inceputa: conservator vs. fereastra; restul neimplementat |
-| 6 | LLM ca interfata; ROS 2 + Nav2 | Optional | Neinceputa |
-
-### Urmatoarea sesiune: pasi concreti
-
-1. Ruleaza testele si citeste `coordination.py`, `Fleet.step()` si `commands.py`.
-   Regresia raportata de utilizator este acoperita inclusiv printr-un eveniment
-   real Pygame: o apasare dreapta creeaza a sasea comanda, peste cele cinci demo.
-2. Extinde scenariile dense, robotul inactiv care ocupa o tinta, deadlock ciclic,
-   pasaj imposibil si sarcini cu destinatii comune. Separa mereu siguranta de progres.
-3. Adauga prioritati cu vechime, detectarea ciclurilor de asteptare si mutarea
-   robotilor inactivi spre parcari/refugii. Nu declara orice caz rezolvabil.
-4. Evalueaza orizonturi/bugete diferite in benchmark. Optimizeaza cache-ul
-   distantelor si masoara blocarea UI-ului in scenarii aglomerate.
-5. Adauga salvare/incarcare JSON pentru harta si scenarii, pentru reproducerea
-   bugurilor semnalate de utilizator. UI-ul poate primi o lista vizibila de comenzi.
-6. Continua etapa 5 cu Hungarian vs. greedy si comparator fara coordonare care
-   NUMARA coliziunile, fara a deveni modul implicit. Adauga export CSV si grafice.
-7. Dupa stabilizarea motorului, adauga serverul Python si UI web. Motorul trebuie
-   sa ramana autoritatea pentru miscare; nu dubla regulile de trafic in interfata.
-8. LLM si ROS 2 raman bonusuri, dupa etapele de algoritmi si benchmark.
-
-## Benchmark reproductibil
+## Verificari si benchmark
 
 ```powershell
+.\.venv\Scripts\python.exe -m pytest -q
+.\.venv\Scripts\python.exe render_preview.py
 .\.venv\Scripts\python.exe benchmark.py --robots 8 --seeds 7 19 42 --ticks 600 --jobs 20 --interval 20 --output artifacts/benchmark.json
 ```
 
-Nu necesita fereastra sau Pygame. Fiecare coordonator primeste aceleasi comenzi,
-la aceleasi tick-uri. Raportul retine si scenariul efectiv. `submitted` poate fi
-mai mic decat `requested_jobs` daca rularea este prea scurta pentru intervalul ales.
-Latentele sunt calculate doar pentru comenzile finalizate; `unfinished` trebuie
-citit impreuna cu ele. Timpii de executie sunt masuratori locale, nu deterministe.
+Testele actuale: **83 passed**. Sunt acoperite A*, siguranta, refugii,
+reproductibilitate, click unic, ajutor modal, geometrie, selectie in timpul
+animatiei, pornire goala, unelte, livrarea cutiilor puse manual si reset complet.
+Capturile 3/5/8, ajutorul si plansa de sprite-uri sunt regenerabile; randarea
+fara fereastra nu inlocuieste o sesiune manuala completa pe desktop.
 
-Rezultatul rularii salvate in `artifacts/benchmark.json`, 8 roboti, 20 comenzi,
-600 tick-uri pentru fiecare caz:
+Raportul algoritmic existent `artifacts/benchmark.json` este din checkpointul
+anterior: 8 roboti, 20 comenzi, 600 tick-uri, seed-uri 7/19/42. Ambii coordonatori
+au livrat 20/20 fara conflicte in fiecare scenariu. Asteptari conservator:
+21/7/17; window: 1/0/1. Window a costat aproximativ 0,69–0,71 secunde/rulare,
+conservator 0,10–0,16 pe calculatorul local. Nu este o garantie universala.
 
-| Seed | Coordonator | Livrate | Asteptari totale | Latenta medie (tick-uri) | Conflicte |
-| --- | --- | --- | --- | --- | --- |
-| 7 | conservative | 20/20 | 21 | 31.30 | 0 |
-| 7 | window | 20/20 | 1 | 30.45 | 0 |
-| 19 | conservative | 20/20 | 7 | 27.65 | 0 |
-| 19 | window | 20/20 | 0 | 27.10 | 0 |
-| 42 | conservative | 20/20 | 17 | 26.85 | 0 |
-| 42 | window | 20/20 | 1 | 25.10 | 0 |
+Scenariile sunt identice intre coordonatori si retinute in JSON. Latenta medie
+si p95 includ doar comenzile finalizate: citeste si `unfinished`. `submitted`
+poate fi sub `requested_jobs` daca rularea e prea scurta. Timpii CPU nu sunt
+deterministi. Schimbarile vizuale nu reprezinta o noua masuratoare benchmark.
 
-Coordonatorul window a costat aproximativ 0,69–0,71 secunde/rulare fata de
-0,10–0,16 secunde pentru comparator pe acest calculator. Rezultatele nu sunt
-o dovada de superioritate universala: scenariile dense/imposibile trebuie
-masurate separat. Niciun fallback nu a fost necesar in aceste trei scenarii.
+## Fisiere
 
-## Fisiere si verificari la checkpoint
+- `fleet.py`: sarcini, alocare, faze si executie comuna.
+- `coordination.py`: coordonatori, rezervari, cautare si validare.
+- `fleet_ui.py`: `DepotUI`, unelte, plasarea cutiilor si pornirea goala.
+- `retro_view.py`: geometrie, iconite, randare si animatie fara modificarea motorului.
+- `route_view.py`: previzualizare completa a traseului, separata de rezervarile de trafic.
+- `pixel_art.py`: sprite-uri 15x15, pereti, cutii, paleta si alfabet bitmap.
+- `atelier_decor.py`: podea texturata, marcaje vopsite si planta pixel art, fara efect asupra motorului.
+- `commands.py`: fluxul avansat de preluare/destinatie explicita.
+- `main.py`: CLI; `grid.py`, `astar.py`, `robot.py`: componentele initiale.
+- `benchmark.py`: scenarii headless si export JSON.
+- `render_preview.py`: capturi de pornire, ajutor si plansa sprite-urilor.
+- `DESIGN.md`: directie vizuala si continuare.
+- `test_*.py`: regresiile functionale si de interactiune.
 
-| Fisier | Rol |
-| --- | --- |
-| `main.py` | CLI; flota implicit, `--single`, `--robots`, `--seed`, `--coordination` |
-| `fleet.py` | Motor: sarcini, alocare, faze, executia comuna si statistici |
-| `coordination.py` | A* spatio-temporal, rezolvare limitata de conflicte, fallback, validare |
-| `commands.py` | Comanda dintr-un click, preluare manuala si mesaje pentru utilizator |
-| `fleet_ui.py` | Harta, mouse/tastatura, generator, panou, feedback si log |
-| `benchmark.py` | Scenarii headless identice, metrici si export JSON |
-| `grid.py`, `astar.py`, `robot.py` | Grid, A* spatial si robotul demo-ului initial |
-| `test_astar.py`, `test_simulation.py`, `test_fleet.py` | Cele 43 de teste anterioare |
-| `test_coordination.py`, `test_commands.py`, `test_benchmark.py` | Rezervari, progres, click unic si benchmark |
-| `artifacts/fleet-5.png`, `artifacts/fleet-8.png` | Previzualizari actualizate |
-| `artifacts/benchmark.json` | Rezultatele comparative si scenariile rulate |
+## Istoric scurt
 
-Verificari la acest checkpoint:
+- 22 teste: un robot, A*, obstacole si pauza.
+- 43 teste: flota, transport si coordonare conservatoare.
+- 62 teste: click unic, coordonare temporala, refugiu si benchmark.
+- 73 teste: identitate retro, sprite-uri, animatie, butoane si ajutor.
+- **77 teste, actual:** interfata simplificata, harta goala, unelte pereti/cutii,
+  fara comenzi automate si fara grila/linii de traseu afisate implicit.
 
-- `python -m pytest -q`: **62 passed**.
-- Teste pentru asteptare in spatiu-timp, rezervari de muchii, ocuparea tintei dupa
-  sosire, prefix spre tinta indepartata, refugiu lateral si urmarire in acelasi tick.
-- Teste pentru invalidarea rezervarilor dupa obstacole, robot inactiv, fallback
-  la buget mic si bariera independenta de siguranta.
-- Teste pentru un click dreapta, Shift+click, click invalid, selectie anulata,
-  preluare accesibila dupa distanta A* si integrarea evenimentului Pygame.
-- Toate testele vechi de livrare, coliziune, reproductibilitate si editare live.
-- Benchmark real pentru ambii coordonatori pe cele trei seed-uri documentate.
-- Randare fara fereastra pentru 5/8 roboti si inspectie vizuala a capturilor;
-  nu echivaleaza cu o sesiune manuala completa pe desktop.
+Nu a fost lasat un proces de simulare sau server pornit. Pastreaza aici deciziile,
+verificarile si limitarile reale pentru reluarea lucrului dupa o intrerupere.
 
-### Istoric scurt
 
-- Checkpoint 1: 22 teste, un robot, A*, obstacole si pauza.
-- Checkpoint 2: 43 teste, flota 3–8, transport si coordonare conservatoare.
-- Checkpoint 3 (actual): 62 teste, click unic, coordonare temporala cu refugiu,
-  benchmark comparativ. Urmatorul accent: progres in trafic dens si reproducerea
-  scenariilor prin salvare/incarcare.
+### Finisaje vizuale — 5 octombrie 2026
 
-Nu exista un server sau proces de simulare lasat pornit de aceasta sesiune.
-Actualizeaza acest README la urmatoarea sesiune cu deciziile, verificarile si
-limitarile reale, nu doar cu intentii.
+Spatiile goale au acum o podea cu placi mari in nuante foarte apropiate,
+granulatie rara, bordura vopsita, baze numerotate si iesiri etichetate cu sageti
+scurte. Inscripția estompata ATELIER este pur decorativa. Panoul are o planta
+pixel art si un mesaj de coada goala asezat pe o zona de hartie discreta.
+
+Implementarea este in `atelier_decor.py`, apelata din `retro_view.py` inaintea
+obiectelor hartii. Fundalul este memorat in cache si determinist: nu se schimba
+la fiecare cadru si nu consuma RNG-ul comenzilor. Peretii/cutiile utilizatorului
+sunt desenate peste decor. Harta continua sa porneasca fara obstacole sau cutii.
+
+La reluare: pastreaza contrastul decorului sub cel al robotilor si al obiectelor.
+Nu transforma marcajele pictate in obstacole, nu readauga trasee multiple sau
+o grila accentuata. Capturile 3/5/8 si ajutorul se regenereaza cu
+`python render_preview.py`. Verificarea ramane suita de 77 de teste existente.
+
+
+### Corectie trasee si selectie — checkpoint actual
+
+**83 teste trecute.** Butonul TRASEE si scurtatura P au fost eliminate. Panoul
+ECHIPA DE TURA contine cinci iconite la pornirea implicita (se adapteaza la 3–8).
+Click pe iconita, pe robotul vizibil sau tasta 1–8 afiseaza automat numai ruta lui.
+La pornire nu este desenata nicio ruta, pana cand alegi un robot.
+
+Cauza fragmentarii: `robot.path` contine adesea doar fereastra rezervata de 12
+tick-uri, iar randarea veche afisa puncte neconectate si elimina ordinea cu set().
+`route_view.display_route()` pastreaza ordinea si ocolirile, elimina doar
+repetarile consecutive de asteptare, apoi completeaza prefixul prin A* pana la
+tinta curenta. Linia continua porneste de la sprite-ul animat. Daca harta invalideaza
+prefixul, previzualizarea se recalculeaza. Robotul fara misiune sau cu tinta
+inaccesibila primeste un mesaj explicit in panou.
+
+Continuarea dincolo de fereastra planificata este ORIENTATIVA, nu rezervata:
+traficul poate modifica traseul. Tinta curenta inseamna preluarea, livrarea sau
+baza, in functie de faza misiunii. Motorul si siguranta miscarii nu au fost schimbate.
+
+Testele suplimentare din `test_route_view.py` verifica ruta lunga, asteptari,
+intoarceri, pereti noi, tinta inaccesibila, selectia prin iconite si actualizarea
+in timpul miscarii. `artifacts/selected-route.png` arata un exemplu cu ruta activa;
+capturile obisnuite continua sa arate pornirea goala. Toate sunt regenerate de
+`render_preview.py`. Pentru reluare, citeste `route_view.py` si `DepotUI.select_robot`.

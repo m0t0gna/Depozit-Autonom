@@ -63,12 +63,13 @@ def test_real_ui_event_submits_on_first_click(monkeypatch):
     monkeypatch.setattr(fleet_ui, 'Fleet', lambda **kwargs: fleet)
     frames = iter([
         [pygame.event.Event(pygame.KEYDOWN, key=pygame.K_SPACE, mod=0),
-         pygame.event.Event(pygame.MOUSEBUTTONDOWN, button=3, pos=(28 * 30 + 15, 60 + 5 * 30 + 15))],
+         pygame.event.Event(pygame.MOUSEBUTTONDOWN, button=3, pos=(fleet_ui.MAP_X + 27 * fleet_ui.CELL + 15, fleet_ui.HEADER + 5 * fleet_ui.CELL + 15))],
         [pygame.event.Event(pygame.QUIT)],
     ])
     monkeypatch.setattr(pygame.event, 'get', lambda: next(frames))
     fleet_ui.run()
-    assert len(fleet.tasks) == 6  # 5 demo + prima apasare, fara al doilea click.
+    assert len(fleet.tasks) == 1  # Nicio comanda demo; prima apasare pune o cutie.
+    assert fleet.tasks[-1].pickup == (27, 5)
     assert fleet.tasks[-1].dropoff == (28, 5)
 
 
@@ -76,7 +77,7 @@ def test_confirmation_is_not_overwritten_by_log_rendering(monkeypatch):
     monkeypatch.setenv('SDL_VIDEODRIVER', 'dummy')
     monkeypatch.setenv('SDL_AUDIODRIVER', 'dummy')
     import pygame
-    from fleet_ui import draw
+    from fleet_ui import draw, window_size
     pygame.init()
     try:
         font = pygame.font.SysFont('consolas', 15)
@@ -93,7 +94,7 @@ def test_confirmation_is_not_overwritten_by_log_rendering(monkeypatch):
         fleet = Fleet()
         commands = TaskCommands(fleet)
         commands.right_click((28, 5))
-        draw(pygame.Surface((1320, 728)), RecordingFont(), fleet, message=commands.message)
+        draw(pygame.Surface(window_size(fleet.grid)), RecordingFont(), fleet, message=commands.message)
         assert commands.message in rendered
     finally:
         pygame.quit()

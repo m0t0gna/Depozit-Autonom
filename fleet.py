@@ -63,8 +63,8 @@ class Fleet:
         self.dropoffs = list(dropoffs) if dropoffs is not None else [(28, 5), (28, 11), (28, 17)]
         if not starts or len(starts) > 8 or len(set(starts)) != len(starts):
             raise ValueError('Pozitiile initiale trebuie sa fie distincte (1–8 roboti).')
-        if not self.pickups or not self.dropoffs:
-            raise ValueError('Sunt necesare puncte de preluare si livrare.')
+        if not self.dropoffs:
+            raise ValueError('Este necesar cel putin un punct de livrare.')
         if not all(self.grid.is_free(c) for c in starts + self.pickups + self.dropoffs):
             raise ValueError('Pozitiile initiale si statiile trebuie sa fie accesibile.')
         self.robots = [FleetRobot(i + 1, pos, pos) for i, pos in enumerate(starts)]
