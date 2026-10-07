@@ -151,7 +151,7 @@ def test_startup_is_empty_without_demo_tasks(monkeypatch):
 
 
 def test_user_placed_box_is_delivered_and_duplicate_is_rejected():
-    from grid import Grid
+    from engine.grid import Grid
     fleet = Fleet(grid=Grid(30, 20), pickups=[])
     ui = DepotUI(fleet)
     ui.action('task', 0)
@@ -166,7 +166,7 @@ def test_user_placed_box_is_delivered_and_duplicate_is_rejected():
 
 
 def test_full_reset_returns_to_empty_map():
-    from grid import Grid
+    from engine.grid import Grid
     ui = DepotUI(Fleet(grid=Grid(30, 20), pickups=[]))
     ui.click(center((3, 0)), 1, 0, 0)
     assert ui.fleet.grid.blocked
@@ -178,7 +178,7 @@ def test_full_reset_returns_to_empty_map():
 
 
 def test_box_requires_free_cell_and_reachable_exit():
-    from grid import Grid
+    from engine.grid import Grid
     ui = DepotUI(Fleet(grid=Grid(30, 20), pickups=[]))
     for cell in (ui.fleet.robots[0].pos, ui.fleet.dropoffs[0]):
         ui.place_box(cell)

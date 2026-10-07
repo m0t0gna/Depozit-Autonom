@@ -145,7 +145,7 @@ def run(robot_count=5, seed=42, coordination='window'):
         fleet = Fleet(robot_count=robot_count, seed=seed, coordination=coordination, grid=Grid(30, 20), pickups=[])
         screen = pygame.display.set_mode(window_size(fleet.grid))
         pygame.display.set_caption('Micul Depozit | Atelier de robotei')
-        from pixel_art import robot_sprite
+        from ui.pixel_art import robot_sprite
         pygame.display.set_icon(robot_sprite(0))
         font = pygame.font.SysFont('consolas', 15)
         clock = pygame.time.Clock()

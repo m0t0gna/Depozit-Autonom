@@ -7,10 +7,10 @@ def main():
     os.environ.setdefault('SDL_VIDEODRIVER', 'dummy')
     os.environ.setdefault('SDL_AUDIODRIVER', 'dummy')
     import pygame
-    from fleet import Fleet
-    from grid import Grid
-    from fleet_ui import DepotUI, draw, window_size
-    from pixel_art import PAPER, TEAL, MUTED, NAMES, robot_sprite, tile_sprite, pixel_text
+    from engine.fleet import Fleet
+    from engine.grid import Grid
+    from ui.fleet_ui import DepotUI, draw, window_size
+    from ui.pixel_art import PAPER, TEAL, MUTED, NAMES, robot_sprite, tile_sprite, pixel_text
     target = Path(__file__).resolve().parent / 'artifacts'
     target.mkdir(exist_ok=True)
     pygame.init()

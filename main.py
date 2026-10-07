@@ -194,6 +194,6 @@ if __name__ == "__main__":
     if args.single:
         main()
     else:
-        from fleet_ui import run
+        from ui.fleet_ui import run
 
         run(robot_count=args.robots, seed=args.seed, coordination=args.coordination)

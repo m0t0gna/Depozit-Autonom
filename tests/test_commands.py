@@ -77,7 +77,7 @@ def test_confirmation_is_not_overwritten_by_log_rendering(monkeypatch):
     monkeypatch.setenv('SDL_VIDEODRIVER', 'dummy')
     monkeypatch.setenv('SDL_AUDIODRIVER', 'dummy')
     import pygame
-    from fleet_ui import draw, window_size
+    from ui.fleet_ui import draw, window_size
     pygame.init()
     try:
         font = pygame.font.SysFont('consolas', 15)
