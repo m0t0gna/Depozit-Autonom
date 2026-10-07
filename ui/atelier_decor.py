@@ -1,7 +1,7 @@
 """Detalii pur vizuale de atelier. Nu ocupa celule si nu folosesc RNG-ul flotei."""
 from functools import lru_cache
 import pygame
-from pixel_art import pixel_text
+from ui.pixel_art import pixel_text
 
 
 @lru_cache(maxsize=12)

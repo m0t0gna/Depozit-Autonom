@@ -1,8 +1,8 @@
-from fleet import Fleet, FleetRobot
-from fleet_ui import DepotUI
-from grid import Grid
-from route_view import display_route
-from retro_view import roster_rects, button_rects
+from engine.fleet import Fleet, FleetRobot
+from ui.fleet_ui import DepotUI
+from engine.grid import Grid
+from ui.route_view import display_route
+from ui.retro_view import roster_rects, button_rects
 
 
 def test_short_planning_window_is_extended_to_goal():

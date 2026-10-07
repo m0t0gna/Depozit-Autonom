@@ -1,8 +1,8 @@
 """Interfata Pygame pentru simulatorul de depozit autonom."""
 import pygame
 
-from grid import make_warehouse
-from robot import Robot
+from engine.grid import make_warehouse
+from engine.robot import Robot
 
 CELL = 30
 PANEL_W = 360

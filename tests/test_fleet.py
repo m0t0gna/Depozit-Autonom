@@ -1,8 +1,8 @@
 """Teste de comportament pentru alocare, transport si siguranta flotei."""
 import pytest
 
-from fleet import Fleet
-from grid import Grid
+from engine.fleet import Fleet
+from engine.grid import Grid
 
 
 def small(starts, width=7, height=5):

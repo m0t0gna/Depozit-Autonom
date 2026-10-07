@@ -1,6 +1,6 @@
-from commands import TaskCommands
-from fleet import Fleet
-from grid import Grid
+from engine.commands import TaskCommands
+from engine.fleet import Fleet
+from engine.grid import Grid
 
 
 def test_single_right_click_creates_task_immediately():

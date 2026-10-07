@@ -1,7 +1,7 @@
 """robot.py - un robot care are o tinta, un drum planificat si un jurnal de decizii."""
 from collections import deque
 
-from astar import astar
+from engine.astar import astar
 
 
 class Robot:

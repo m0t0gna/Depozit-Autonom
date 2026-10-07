@@ -7,9 +7,10 @@ from collections import deque
 from dataclasses import dataclass, field
 import random
 
-from astar import astar
-from coordination import ConservativeCoordinator, WindowCoordinator, safe_joint_step
-from grid import Grid, make_warehouse
+from engine.astar import astar
+from engine.coordination import ConservativeCoordinator, WindowCoordinator, safe_joint_step
+from engine.allocators import GreedyAllocator, HungarianAllocator
+from engine.grid import Grid, make_warehouse
 
 Cell = tuple[int, int]
 
@@ -54,7 +55,7 @@ class FleetRobot:
 
 class Fleet:
     def __init__(self, robot_count=5, seed=42, *, grid=None, starts=None,
-                 pickups=None, dropoffs=None, coordination='window'):
+                 pickups=None, dropoffs=None, coordination='window', allocator='greedy'):
         if not 1 <= robot_count <= 8:
             raise ValueError('Flota trebuie sa aiba intre 1 si 8 roboti.')
         self.grid = grid if grid is not None else make_warehouse()
@@ -73,6 +74,7 @@ class Fleet:
         if coordination not in ('window', 'conservative'):
             raise ValueError('Coordonator necunoscut.')
         self.coordinator = WindowCoordinator() if coordination == 'window' else ConservativeCoordinator()
+        self.allocator = HungarianAllocator() if allocator == 'hungarian' else GreedyAllocator()
         self.rng = random.Random(seed)
         self.log = deque(maxlen=80)
         self.log.append('Flota pregatita. T: comanda noua; A: generare automata.')
@@ -113,31 +115,15 @@ class Fleet:
         robot.path = path[1:] if path else []
 
     def assign(self):
-        """FIFO intre comenzi; cel mai apropiat robot liber dupa costul A*."""
-        for task in self.tasks:
-            if task.status != 'pending':
-                continue
-            free = [r for r in self.robots if r.available]
-            if not free:
-                break
-            # O comanda imposibila ramane in asteptare, fara sa consume un robot.
-            delivery_path, _ = astar(self.grid, task.pickup, task.dropoff)
-            if delivery_path is None:
-                continue
-            candidates = []
-            for robot in free:
-                path, _ = astar(self.grid, robot.pos, task.pickup)
-                if path is not None:
-                    candidates.append((len(path) - 1, robot.id, robot))
-            if not candidates:
-                continue
-            _, _, robot = min(candidates)
-            task.status, task.robot_id, task.assigned_tick = 'assigned', robot.id, self.tick
-            robot.task_id, robot.phase, robot.goal = task.id, 'to_pickup', task.pickup
-            robot.wait_reason = ''
-            robot.consecutive_waits = 0
-            self.plan(robot)
-            self.record(f'Robot {robot.id} preia comanda #{task.id}.')
+        self.allocator.assign(self)
+
+    def _execute_assignment(self, robot, task):
+        task.status, task.robot_id, task.assigned_tick = 'assigned', robot.id, self.tick
+        robot.task_id, robot.phase, robot.goal = task.id, 'to_pickup', task.pickup
+        robot.wait_reason = ''
+        robot.consecutive_waits = 0
+        self.plan(robot)
+        self.record(f'Robot {robot.id} preia comanda #{task.id}.')
 
     def arrive(self, robot):
         if robot.pos != robot.goal:

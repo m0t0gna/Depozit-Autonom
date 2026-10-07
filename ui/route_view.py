@@ -1,7 +1,7 @@
 """Traseu de afisare complet; nu modifica rezervarile coordonatorului."""
 from functools import lru_cache
-from astar import astar
-from grid import Grid
+from engine.astar import astar
+from engine.grid import Grid
 
 
 @lru_cache(maxsize=128)

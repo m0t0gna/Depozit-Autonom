@@ -8,8 +8,8 @@ from collections import deque
 import heapq
 import itertools
 
-from astar import astar
-from grid import Grid
+from engine.astar import astar
+from engine.grid import Grid
 
 
 def distances(grid, goal):

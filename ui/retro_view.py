@@ -1,9 +1,9 @@
 """Randare retro a flotei; geometrie comuna pentru desenare si interactiuni."""
 import pygame
-from route_view import display_route
-from turn_effects import TurnDust
-from atelier_decor import workshop_floor, desk_plant
-from pixel_art import (INK, PAPER, CREAM, MUTED, LINE, TEAL, TERRA, COLORS, NAMES,
+from ui.route_view import display_route
+from ui.turn_effects import TurnDust
+from ui.atelier_decor import workshop_floor, desk_plant
+from ui.pixel_art import (INK, PAPER, CREAM, MUTED, LINE, TEAL, TERRA, COLORS, NAMES,
                        robot_sprite, tile_sprite, pixel_text, crate_sprite)
 
 CELL, HEADER, MAP_X, PANEL = 30, 88, 20, 380

@@ -4,10 +4,10 @@ import random
 
 import pytest
 
-from astar import astar
-from grid import Grid, make_warehouse
+from engine.astar import astar
+from engine.grid import Grid, make_warehouse
 from main import Simulation, SPEEDS, START
-from robot import Robot
+from engine.robot import Robot
 
 
 @pytest.mark.parametrize('start,goal', [((-1, 0), (2, 2)), ((0, 0), (3, 0)), ((1, 1), (2, 2)), ((1, 1), (1, 1)), ((0, 0), (1, 1))])

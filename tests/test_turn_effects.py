@@ -1,7 +1,7 @@
-from fleet import Fleet
-from grid import Grid
-from retro_view import Animation
-from turn_effects import TurnDust, LIFETIME_MS, MAX_PUFFS
+from engine.fleet import Fleet
+from engine.grid import Grid
+from ui.retro_view import Animation
+from ui.turn_effects import TurnDust, LIFETIME_MS, MAX_PUFFS
 
 
 def setup():

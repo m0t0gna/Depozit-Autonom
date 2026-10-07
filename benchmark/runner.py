@@ -6,7 +6,7 @@ from pathlib import Path
 from statistics import mean
 from time import perf_counter
 
-from fleet import Fleet
+from engine.fleet import Fleet
 
 
 def run_case(coordination='window', robots=5, seed=42, ticks=600, jobs=20, interval=20):

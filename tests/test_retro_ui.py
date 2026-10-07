@@ -2,9 +2,9 @@
 import pytest
 import pygame
 
-from fleet import Fleet
-from fleet_ui import DepotUI
-from retro_view import (CELL, MAP_X, HEADER, cell_at, button_rects,
+from engine.fleet import Fleet
+from ui.fleet_ui import DepotUI
+from ui.retro_view import (CELL, MAP_X, HEADER, cell_at, button_rects,
                         roster_rects, help_close_rect, window_size, Animation)
 
 

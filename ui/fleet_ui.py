@@ -1,11 +1,11 @@
 """Comenzi Pygame pentru depozit; motorul si randarea raman independente."""
 import pygame
 
-from fleet import Fleet
-from commands import TaskCommands
-from grid import Grid
-from astar import astar
-from retro_view import (CELL, HEADER, MAP_X, PANEL, SPEEDS, Animation, draw,
+from engine.fleet import Fleet
+from engine.commands import TaskCommands
+from engine.grid import Grid
+from engine.astar import astar
+from ui.retro_view import (CELL, HEADER, MAP_X, PANEL, SPEEDS, Animation, draw,
                         cell_at, window_size, roster_rects, button_rects, help_close_rect)
 
 

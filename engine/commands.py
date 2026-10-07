@@ -1,5 +1,5 @@
 """Comenzi de transport independente de UI, inclusiv actiunea cu un click."""
-from astar import astar
+from engine.astar import astar
 
 
 class TaskCommands:

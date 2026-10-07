@@ -1,5 +1,5 @@
-from grid import Grid, make_warehouse
-from astar import astar
+from engine.grid import Grid, make_warehouse
+from engine.astar import astar
 
 def test_straight_line():
     path, _ = astar(Grid(5, 5), (0, 0), (4, 0))

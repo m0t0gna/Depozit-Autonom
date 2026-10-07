@@ -1,8 +1,8 @@
 """Regresii pentru rezervari in timp, siguranta si progres."""
-from coordination import WindowCoordinator, distances, timed_path, safe_joint_step
-from fleet import Fleet, FleetRobot
-from grid import Grid
-from test_fleet import assert_safe_step
+from engine.coordination import WindowCoordinator, distances, timed_path, safe_joint_step
+from engine.fleet import Fleet, FleetRobot
+from engine.grid import Grid
+from tests.test_fleet import assert_safe_step
 
 
 def test_space_time_waits_for_reserved_cell():

@@ -1,4 +1,4 @@
-from benchmark import run_case
+from benchmark.runner import run_case
 
 
 def test_benchmark_uses_same_workload_for_both_coordinators():
