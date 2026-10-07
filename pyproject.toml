@@ -12,7 +12,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-pygame = ["pygame>=2.6"]
+pygame = ["pygame-ce>=2.5"]
 ai = ["google-genai>=1.0", "Pillow>=10"]
 rl = ["torch>=2.4", "gymnasium>=1.0"]
 analytics = ["scikit-learn>=1.5", "pandas>=2.2", "matplotlib>=3.9"]

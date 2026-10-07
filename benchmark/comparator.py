@@ -1,23 +1,29 @@
 import json
 import time
+import random
 from engine.fleet import Fleet
-from benchmark.runner import run_case
 
-def compare_allocators(robots=5, ticks=300, jobs=15):
-    print(f"--- Rulare Benchmark: {robots} roboti, {jobs} joburi, {ticks} tick-uri ---")
+def compare_allocators(robots=5, ticks=300, jobs=20):
+    print(f"--- Rulare Benchmark STRESS TEST: {robots} roboti, {jobs} joburi SIMULTANE ---")
     results = []
+    
+    # Generate same random tasks for both
+    rng = random.Random(42)
+    pickups = [(4, 2), (12, 2), (20, 2), (4, 8), (12, 8), (20, 8)]
+    dropoffs = [(28, 5), (28, 11), (28, 17)]
+    pairs = [(a, b) for a in pickups for b in dropoffs if a != b]
+    task_list = [rng.choice(pairs) for _ in range(jobs)]
     
     for allocator in ['greedy', 'hungarian']:
         start_time = time.time()
         
-        # We need to monkey-patch run_case or write our own small loop.
-        # Let's write a small evaluation loop to avoid modifying runner.py too much.
-        
         fleet = Fleet(robot_count=robots, coordination='window', allocator=allocator)
         
+        # Add all tasks at tick 0 (burst)
+        for pickup, dropoff in task_list:
+            fleet.add_task(pickup, dropoff)
+        
         for t in range(ticks):
-            if t % 20 == 0 and len(fleet.tasks) < jobs:
-                fleet.random_task()
             fleet.step()
             
         elapsed = time.time() - start_time
@@ -26,17 +32,7 @@ def compare_allocators(robots=5, ticks=300, jobs=15):
         total_wait = sum(r.wait_ticks for r in fleet.robots)
         total_steps = sum(r.steps for r in fleet.robots)
         
-        results.append({
-            "allocator": allocator,
-            "deliveries": deliveries,
-            "total_wait_ticks": total_wait,
-            "total_steps": total_steps,
-            "time_sec": round(elapsed, 2)
-        })
-        
-        print(f"Allocator: {allocator:10} | Livrate: {deliveries}/{jobs} | Pasi: {total_steps} | Asteptare: {total_wait} | Timp: {elapsed:.2f}s")
-
-    return results
+        print(f"Allocator: {allocator:10} | Livrate: {deliveries:2}/{jobs} | Pasi: {total_steps:3} | Asteptare: {total_wait:2} | Timp: {elapsed:.2f}s")
 
 if __name__ == '__main__':
     compare_allocators()
