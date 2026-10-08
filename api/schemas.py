@@ -22,6 +22,8 @@ class TaskState(BaseModel):
 
 class FleetState(BaseModel):
     tick: int
+    coordination: str
+    allocator: str
     robots: List[RobotState]
     tasks: List[TaskState]
     grid_width: int

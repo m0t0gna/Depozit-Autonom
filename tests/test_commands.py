@@ -58,7 +58,7 @@ def test_real_ui_event_submits_on_first_click(monkeypatch):
     monkeypatch.setenv('SDL_VIDEODRIVER', 'dummy')
     monkeypatch.setenv('SDL_AUDIODRIVER', 'dummy')
     import pygame
-    import fleet_ui
+    from ui import fleet_ui
     fleet = Fleet()
     monkeypatch.setattr(fleet_ui, 'Fleet', lambda **kwargs: fleet)
     frames = iter([

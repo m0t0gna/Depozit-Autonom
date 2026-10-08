@@ -1,0 +1,739 @@
+{
+  "version": 1,
+  "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+  ],
+  "aggregate": [
+    {
+      "scenario": "burst",
+      "robots": 3,
+      "allocator": "greedy",
+      "runs": 10,
+      "runs_with_unfinished": 0,
+      "makespan_ticks": {
+        "mean": 304,
+        "std": 27.479285127366598,
+        "n": 10
+      },
+      "distance_cells": {
+        "mean": 968.6,
+        "std": 92.17881173747757,
+        "n": 10
+      },
+      "wait_ticks": {
+        "mean": 0.4,
+        "std": 0.5163977794943223,
+        "n": 10
+      },
+      "mean_latency_ticks": {
+        "mean": 164.49,
+        "std": 16.751298457134595,
+        "n": 10
+      },
+      "p95_latency_ticks": {
+        "mean": 286.8,
+        "std": 32.75769629669746,
+        "n": 10
+      },
+      "max_latency_ticks": {
+        "mean": 304,
+        "std": 27.479285127366598,
+        "n": 10
+      }
+    },
+    {
+      "scenario": "burst",
+      "robots": 3,
+      "allocator": "hungarian",
+      "runs": 10,
+      "runs_with_unfinished": 0,
+      "makespan_ticks": {
+        "mean": 291.2,
+        "std": 37.3297617339183,
+        "n": 10
+      },
+      "distance_cells": {
+        "mean": 909.2,
+        "std": 103.57691720541685,
+        "n": 10
+      },
+      "wait_ticks": {
+        "mean": 1.2,
+        "std": 0.9189365834726815,
+        "n": 10
+      },
+      "mean_latency_ticks": {
+        "mean": 138.515,
+        "std": 15.35066140449836,
+        "n": 10
+      },
+      "p95_latency_ticks": {
+        "mean": 265.1,
+        "std": 32.793800227075444,
+        "n": 10
+      },
+      "max_latency_ticks": {
+        "mean": 291.2,
+        "std": 37.3297617339183,
+        "n": 10
+      }
+    },
+    {
+      "scenario": "burst",
+      "robots": 5,
+      "allocator": "greedy",
+      "runs": 10,
+      "runs_with_unfinished": 0,
+      "makespan_ticks": {
+        "mean": 188.7,
+        "std": 14.61392030451332,
+        "n": 10
+      },
+      "distance_cells": {
+        "mean": 987,
+        "std": 83.90603209675822,
+        "n": 10
+      },
+      "wait_ticks": {
+        "mean": 0.4,
+        "std": 0.699205898780101,
+        "n": 10
+      },
+      "mean_latency_ticks": {
+        "mean": 100.06,
+        "std": 8.121979780543386,
+        "n": 10
+      },
+      "p95_latency_ticks": {
+        "mean": 175.2,
+        "std": 20.153852678279105,
+        "n": 10
+      },
+      "max_latency_ticks": {
+        "mean": 188.7,
+        "std": 14.61392030451332,
+        "n": 10
+      }
+    },
+    {
+      "scenario": "burst",
+      "robots": 5,
+      "allocator": "hungarian",
+      "runs": 10,
+      "runs_with_unfinished": 0,
+      "makespan_ticks": {
+        "mean": 183.2,
+        "std": 20.66021404643341,
+        "n": 10
+      },
+      "distance_cells": {
+        "mean": 928.8,
+        "std": 99.96532732236047,
+        "n": 10
+      },
+      "wait_ticks": {
+        "mean": 2.4,
+        "std": 1.0749676997731399,
+        "n": 10
+      },
+      "mean_latency_ticks": {
+        "mean": 87.4,
+        "std": 9.21267243167439,
+        "n": 10
+      },
+      "p95_latency_ticks": {
+        "mean": 164.5,
+        "std": 21.19355247868244,
+        "n": 10
+      },
+      "max_latency_ticks": {
+        "mean": 183.2,
+        "std": 20.66021404643341,
+        "n": 10
+      }
+    },
+    {
+      "scenario": "burst",
+      "robots": 8,
+      "allocator": "greedy",
+      "runs": 10,
+      "runs_with_unfinished": 0,
+      "makespan_ticks": {
+        "mean": 124.1,
+        "std": 13.135617398677706,
+        "n": 10
+      },
+      "distance_cells": {
+        "mean": 990.2,
+        "std": 96.47774642660117,
+        "n": 10
+      },
+      "wait_ticks": {
+        "mean": 1.9,
+        "std": 1.5951314818673865,
+        "n": 10
+      },
+      "mean_latency_ticks": {
+        "mean": 64.17,
+        "std": 6.064111183384127,
+        "n": 10
+      },
+      "p95_latency_ticks": {
+        "mean": 113.7,
+        "std": 14.181756669123265,
+        "n": 10
+      },
+      "max_latency_ticks": {
+        "mean": 124.1,
+        "std": 13.135617398677706,
+        "n": 10
+      }
+    },
+    {
+      "scenario": "burst",
+      "robots": 8,
+      "allocator": "hungarian",
+      "runs": 10,
+      "runs_with_unfinished": 0,
+      "makespan_ticks": {
+        "mean": 125.4,
+        "std": 11.56815552377397,
+        "n": 10
+      },
+      "distance_cells": {
+        "mean": 967.8,
+        "std": 93.46395621367154,
+        "n": 10
+      },
+      "wait_ticks": {
+        "mean": 6.7,
+        "std": 3.020301677353145,
+        "n": 10
+      },
+      "mean_latency_ticks": {
+        "mean": 60.660000000000004,
+        "std": 5.872903881386107,
+        "n": 10
+      },
+      "p95_latency_ticks": {
+        "mean": 115.7,
+        "std": 15.691823773332828,
+        "n": 10
+      },
+      "max_latency_ticks": {
+        "mean": 125.4,
+        "std": 11.56815552377397,
+        "n": 10
+      }
+    },
+    {
+      "scenario": "steady",
+      "robots": 3,
+      "allocator": "greedy",
+      "runs": 10,
+      "runs_with_unfinished": 0,
+      "makespan_ticks": {
+        "mean": 468.6,
+        "std": 36.661211715441766,
+        "n": 10
+      },
+      "distance_cells": {
+        "mean": 1440.2,
+        "std": 106.68520672208183,
+        "n": 10
+      },
+      "wait_ticks": {
+        "mean": 1,
+        "std": 0.6666666666666666,
+        "n": 10
+      },
+      "mean_latency_ticks": {
+        "mean": 173.49333333333334,
+        "std": 21.516590211299455,
+        "n": 10
+      },
+      "p95_latency_ticks": {
+        "mean": 312.6,
+        "std": 36.839592228410396,
+        "n": 10
+      },
+      "max_latency_ticks": {
+        "mean": 326.1,
+        "std": 36.28421756693183,
+        "n": 10
+      }
+    },
+    {
+      "scenario": "steady",
+      "robots": 3,
+      "allocator": "hungarian",
+      "runs": 10,
+      "runs_with_unfinished": 0,
+      "makespan_ticks": {
+        "mean": 465,
+        "std": 41.38437708443449,
+        "n": 10
+      },
+      "distance_cells": {
+        "mean": 1428.2,
+        "std": 111.71571062299161,
+        "n": 10
+      },
+      "wait_ticks": {
+        "mean": 1.9,
+        "std": 0.7378647873726218,
+        "n": 10
+      },
+      "mean_latency_ticks": {
+        "mean": 144.91333333333333,
+        "std": 19.567844623511213,
+        "n": 10
+      },
+      "p95_latency_ticks": {
+        "mean": 351.8,
+        "std": 44.936498404847804,
+        "n": 10
+      },
+      "max_latency_ticks": {
+        "mean": 359,
+        "std": 42.60672873306907,
+        "n": 10
+      }
+    },
+    {
+      "scenario": "steady",
+      "robots": 5,
+      "allocator": "greedy",
+      "runs": 10,
+      "runs_with_unfinished": 0,
+      "makespan_ticks": {
+        "mean": 291.8,
+        "std": 19.378109069543164,
+        "n": 10
+      },
+      "distance_cells": {
+        "mean": 1458.6,
+        "std": 93.79907604377917,
+        "n": 10
+      },
+      "wait_ticks": {
+        "mean": 1.6,
+        "std": 0.9660917830792959,
+        "n": 10
+      },
+      "mean_latency_ticks": {
+        "mean": 83.55,
+        "std": 10.33761261452088,
+        "n": 10
+      },
+      "p95_latency_ticks": {
+        "mean": 147.3,
+        "std": 18.342724867247927,
+        "n": 10
+      },
+      "max_latency_ticks": {
+        "mean": 151.5,
+        "std": 20.484411417248754,
+        "n": 10
+      }
+    },
+    {
+      "scenario": "steady",
+      "robots": 5,
+      "allocator": "hungarian",
+      "runs": 10,
+      "runs_with_unfinished": 0,
+      "makespan_ticks": {
+        "mean": 298.9,
+        "std": 18.423716599354577,
+        "n": 10
+      },
+      "distance_cells": {
+        "mean": 1460.6,
+        "std": 95.33123540815174,
+        "n": 10
+      },
+      "wait_ticks": {
+        "mean": 1.6,
+        "std": 0.8432740427115678,
+        "n": 10
+      },
+      "mean_latency_ticks": {
+        "mean": 76.09333333333333,
+        "std": 9.400063041553771,
+        "n": 10
+      },
+      "p95_latency_ticks": {
+        "mean": 182.4,
+        "std": 25.007554414172088,
+        "n": 10
+      },
+      "max_latency_ticks": {
+        "mean": 201.5,
+        "std": 29.018193526743797,
+        "n": 10
+      }
+    },
+    {
+      "scenario": "steady",
+      "robots": 8,
+      "allocator": "greedy",
+      "runs": 10,
+      "runs_with_unfinished": 0,
+      "makespan_ticks": {
+        "mean": 203.5,
+        "std": 16.761397449032835,
+        "n": 10
+      },
+      "distance_cells": {
+        "mean": 1475.2,
+        "std": 97.7079548677816,
+        "n": 10
+      },
+      "wait_ticks": {
+        "mean": 2.6,
+        "std": 0.9660917830792959,
+        "n": 10
+      },
+      "mean_latency_ticks": {
+        "mean": 38.86666666666667,
+        "std": 7.289278444874608,
+        "n": 10
+      },
+      "p95_latency_ticks": {
+        "mean": 64.7,
+        "std": 13.182901383568371,
+        "n": 10
+      },
+      "max_latency_ticks": {
+        "mean": 71.2,
+        "std": 10.538817137927134,
+        "n": 10
+      }
+    },
+    {
+      "scenario": "steady",
+      "robots": 8,
+      "allocator": "hungarian",
+      "runs": 10,
+      "runs_with_unfinished": 0,
+      "makespan_ticks": {
+        "mean": 205.9,
+        "std": 19.78467420336593,
+        "n": 10
+      },
+      "distance_cells": {
+        "mean": 1470.4,
+        "std": 90.92023366054934,
+        "n": 10
+      },
+      "wait_ticks": {
+        "mean": 2.4,
+        "std": 0.9660917830792959,
+        "n": 10
+      },
+      "mean_latency_ticks": {
+        "mean": 38.583333333333336,
+        "std": 6.870787149183325,
+        "n": 10
+      },
+      "p95_latency_ticks": {
+        "mean": 65.2,
+        "std": 14.474498648005433,
+        "n": 10
+      },
+      "max_latency_ticks": {
+        "mean": 75.2,
+        "std": 17.510631691124743,
+        "n": 10
+      }
+    }
+  ],
+  "paired": [
+    {
+      "scenario": "burst",
+      "robots": 3,
+      "makespan_ticks": {
+        "mean_diff": -12.8,
+        "hungarian_better": 8,
+        "tie": 0,
+        "hungarian_worse": 2,
+        "n": 10
+      },
+      "distance_cells": {
+        "mean_diff": -59.4,
+        "hungarian_better": 9,
+        "tie": 0,
+        "hungarian_worse": 1,
+        "n": 10
+      },
+      "wait_ticks": {
+        "mean_diff": 0.8,
+        "hungarian_better": 0,
+        "tie": 5,
+        "hungarian_worse": 5,
+        "n": 10
+      },
+      "mean_latency_ticks": {
+        "mean_diff": -25.975,
+        "hungarian_better": 10,
+        "tie": 0,
+        "hungarian_worse": 0,
+        "n": 10
+      },
+      "p95_latency_ticks": {
+        "mean_diff": -21.7,
+        "hungarian_better": 10,
+        "tie": 0,
+        "hungarian_worse": 0,
+        "n": 10
+      },
+      "max_latency_ticks": {
+        "mean_diff": -12.8,
+        "hungarian_better": 8,
+        "tie": 0,
+        "hungarian_worse": 2,
+        "n": 10
+      }
+    },
+    {
+      "scenario": "burst",
+      "robots": 5,
+      "makespan_ticks": {
+        "mean_diff": -5.5,
+        "hungarian_better": 6,
+        "tie": 0,
+        "hungarian_worse": 4,
+        "n": 10
+      },
+      "distance_cells": {
+        "mean_diff": -58.2,
+        "hungarian_better": 10,
+        "tie": 0,
+        "hungarian_worse": 0,
+        "n": 10
+      },
+      "wait_ticks": {
+        "mean_diff": 2,
+        "hungarian_better": 0,
+        "tie": 1,
+        "hungarian_worse": 9,
+        "n": 10
+      },
+      "mean_latency_ticks": {
+        "mean_diff": -12.66,
+        "hungarian_better": 10,
+        "tie": 0,
+        "hungarian_worse": 0,
+        "n": 10
+      },
+      "p95_latency_ticks": {
+        "mean_diff": -10.7,
+        "hungarian_better": 8,
+        "tie": 0,
+        "hungarian_worse": 2,
+        "n": 10
+      },
+      "max_latency_ticks": {
+        "mean_diff": -5.5,
+        "hungarian_better": 6,
+        "tie": 0,
+        "hungarian_worse": 4,
+        "n": 10
+      }
+    },
+    {
+      "scenario": "burst",
+      "robots": 8,
+      "makespan_ticks": {
+        "mean_diff": 1.3,
+        "hungarian_better": 3,
+        "tie": 1,
+        "hungarian_worse": 6,
+        "n": 10
+      },
+      "distance_cells": {
+        "mean_diff": -22.4,
+        "hungarian_better": 6,
+        "tie": 0,
+        "hungarian_worse": 4,
+        "n": 10
+      },
+      "wait_ticks": {
+        "mean_diff": 4.8,
+        "hungarian_better": 1,
+        "tie": 0,
+        "hungarian_worse": 9,
+        "n": 10
+      },
+      "mean_latency_ticks": {
+        "mean_diff": -3.5099999999999967,
+        "hungarian_better": 9,
+        "tie": 0,
+        "hungarian_worse": 1,
+        "n": 10
+      },
+      "p95_latency_ticks": {
+        "mean_diff": 2,
+        "hungarian_better": 3,
+        "tie": 1,
+        "hungarian_worse": 6,
+        "n": 10
+      },
+      "max_latency_ticks": {
+        "mean_diff": 1.3,
+        "hungarian_better": 3,
+        "tie": 1,
+        "hungarian_worse": 6,
+        "n": 10
+      }
+    },
+    {
+      "scenario": "steady",
+      "robots": 3,
+      "makespan_ticks": {
+        "mean_diff": -3.6,
+        "hungarian_better": 6,
+        "tie": 0,
+        "hungarian_worse": 4,
+        "n": 10
+      },
+      "distance_cells": {
+        "mean_diff": -12,
+        "hungarian_better": 9,
+        "tie": 0,
+        "hungarian_worse": 1,
+        "n": 10
+      },
+      "wait_ticks": {
+        "mean_diff": 0.9,
+        "hungarian_better": 1,
+        "tie": 1,
+        "hungarian_worse": 8,
+        "n": 10
+      },
+      "mean_latency_ticks": {
+        "mean_diff": -28.580000000000005,
+        "hungarian_better": 10,
+        "tie": 0,
+        "hungarian_worse": 0,
+        "n": 10
+      },
+      "p95_latency_ticks": {
+        "mean_diff": 39.2,
+        "hungarian_better": 0,
+        "tie": 0,
+        "hungarian_worse": 10,
+        "n": 10
+      },
+      "max_latency_ticks": {
+        "mean_diff": 32.9,
+        "hungarian_better": 1,
+        "tie": 0,
+        "hungarian_worse": 9,
+        "n": 10
+      }
+    },
+    {
+      "scenario": "steady",
+      "robots": 5,
+      "makespan_ticks": {
+        "mean_diff": 7.1,
+        "hungarian_better": 2,
+        "tie": 0,
+        "hungarian_worse": 8,
+        "n": 10
+      },
+      "distance_cells": {
+        "mean_diff": 2,
+        "hungarian_better": 4,
+        "tie": 0,
+        "hungarian_worse": 6,
+        "n": 10
+      },
+      "wait_ticks": {
+        "mean_diff": 0,
+        "hungarian_better": 3,
+        "tie": 4,
+        "hungarian_worse": 3,
+        "n": 10
+      },
+      "mean_latency_ticks": {
+        "mean_diff": -7.456666666666667,
+        "hungarian_better": 10,
+        "tie": 0,
+        "hungarian_worse": 0,
+        "n": 10
+      },
+      "p95_latency_ticks": {
+        "mean_diff": 35.1,
+        "hungarian_better": 0,
+        "tie": 0,
+        "hungarian_worse": 10,
+        "n": 10
+      },
+      "max_latency_ticks": {
+        "mean_diff": 50,
+        "hungarian_better": 0,
+        "tie": 0,
+        "hungarian_worse": 10,
+        "n": 10
+      }
+    },
+    {
+      "scenario": "steady",
+      "robots": 8,
+      "makespan_ticks": {
+        "mean_diff": 2.4,
+        "hungarian_better": 1,
+        "tie": 7,
+        "hungarian_worse": 2,
+        "n": 10
+      },
+      "distance_cells": {
+        "mean_diff": -4.8,
+        "hungarian_better": 2,
+        "tie": 8,
+        "hungarian_worse": 0,
+        "n": 10
+      },
+      "wait_ticks": {
+        "mean_diff": -0.2,
+        "hungarian_better": 2,
+        "tie": 8,
+        "hungarian_worse": 0,
+        "n": 10
+      },
+      "mean_latency_ticks": {
+        "mean_diff": -0.2833333333333329,
+        "hungarian_better": 2,
+        "tie": 8,
+        "hungarian_worse": 0,
+        "n": 10
+      },
+      "p95_latency_ticks": {
+        "mean_diff": 0.5,
+        "hungarian_better": 1,
+        "tie": 7,
+        "hungarian_worse": 2,
+        "n": 10
+      },
+      "max_latency_ticks": {
+        "mean_diff": 4,
+        "hungarian_better": 0,
+        "tie": 7,
+        "hungarian_worse": 3,
+        "n": 10
+      }
+    }
+  ]
+}

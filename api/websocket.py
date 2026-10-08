@@ -1,67 +1,77 @@
-from fastapi import WebSocket, WebSocketDisconnect
-from typing import List
-import asyncio
-import json
+"""Canalul WebSocket /ws/live: trimite starea flotei si primeste comenzi simple.
 
-from api.server import app, fleet, get_fleet_state
+Comenzi acceptate (text): "play", "pause", "step". Orice altceva e ignorat.
+"""
+import asyncio
+
+from fastapi import APIRouter, WebSocket, WebSocketDisconnect
+
+from api.state import fleet_to_state, state
+
+router = APIRouter()
+TICK_SECONDS = 0.1  # 10 tick-uri pe secunda cand simularea ruleaza continuu
+
 
 class ConnectionManager:
     def __init__(self):
-        self.active_connections: List[WebSocket] = []
+        self.connections: list[WebSocket] = []
 
     async def connect(self, websocket: WebSocket):
         await websocket.accept()
-        self.active_connections.append(websocket)
+        self.connections.append(websocket)
 
     def disconnect(self, websocket: WebSocket):
-        self.active_connections.remove(websocket)
+        if websocket in self.connections:
+            self.connections.remove(websocket)
+        if not self.connections:
+            state.running = False  # nimeni nu se uita: punem simularea pe pauza
 
-    async def broadcast_state(self):
-        state_dict = get_fleet_state().model_dump()
-        state_json = json.dumps(state_dict)
-        for connection in self.active_connections:
+    async def broadcast(self, payload: str):
+        dead = []
+        for websocket in list(self.connections):
             try:
-                await connection.send_text(state_json)
-            except:
-                pass
+                await websocket.send_text(payload)
+            except Exception:  # clientul s-a deconectat brusc
+                dead.append(websocket)
+        for websocket in dead:
+            self.disconnect(websocket)
+
 
 manager = ConnectionManager()
 
-# Background task global pentru a rula simularea în buclă dacă e "play"
-simulation_running = False
+
+def snapshot_json() -> str:
+    return fleet_to_state(state.fleet).model_dump_json()
+
+
+async def publish():
+    """Trimite starea curenta tuturor clientilor conectati."""
+    await manager.broadcast(snapshot_json())
+
 
 async def simulation_loop():
-    global simulation_running
+    """Task de fundal pornit de server: avanseaza simularea cat timp `state.running` e True."""
     while True:
-        if simulation_running and len(manager.active_connections) > 0:
-            fleet.step()
-            await manager.broadcast_state()
-            await asyncio.sleep(0.1) # 100ms per tick (10 FPS)
-        else:
-            await asyncio.sleep(0.1)
+        if state.running and manager.connections:
+            state.fleet.step()
+            await publish()
+        await asyncio.sleep(TICK_SECONDS)
 
-@app.on_event("startup")
-async def startup_event():
-    asyncio.create_task(simulation_loop())
 
-@app.websocket("/ws/live")
-async def websocket_endpoint(websocket: WebSocket):
+@router.websocket('/ws/live')
+async def live(websocket: WebSocket):
     await manager.connect(websocket)
     try:
-        # Trimitem starea imediat la conectare
-        await websocket.send_text(json.dumps(get_fleet_state().model_dump()))
-        
+        await websocket.send_text(snapshot_json())
         while True:
-            data = await websocket.receive_text()
-            # Aici putem primi comenzi direct prin WebSocket (ex: "play", "pause")
-            global simulation_running
-            if data == "play":
-                simulation_running = True
-            elif data == "pause":
-                simulation_running = False
-            elif data == "step":
-                simulation_running = False
-                fleet.step()
-                await manager.broadcast_state()
+            command = await websocket.receive_text()
+            if command == 'play':
+                state.running = True
+            elif command == 'pause':
+                state.running = False
+            elif command == 'step':
+                state.running = False
+                state.fleet.step()
+                await publish()
     except WebSocketDisconnect:
         manager.disconnect(websocket)

@@ -135,7 +135,10 @@ def main():
     pygame.init()
     try:
         sim = Simulation()
-        screen = pygame.display.set_mode((sim.grid.width * CELL + PANEL_W, sim.grid.height * CELL))
+        screen = pygame.display.set_mode(
+            (sim.grid.width * CELL + PANEL_W, sim.grid.height * CELL),
+            pygame.RESIZABLE | pygame.SCALED
+        )
         pygame.display.set_caption("Depozit autonom | Simulator A*")
         font = pygame.font.SysFont("consolas", 15)
         clock = pygame.time.Clock()

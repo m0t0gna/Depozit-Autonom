@@ -74,6 +74,8 @@ class Fleet:
         if coordination not in ('window', 'conservative'):
             raise ValueError('Coordonator necunoscut.')
         self.coordinator = WindowCoordinator() if coordination == 'window' else ConservativeCoordinator()
+        if allocator not in ('greedy', 'hungarian'):
+            raise ValueError('Alocator necunoscut.')
         self.allocator = HungarianAllocator() if allocator == 'hungarian' else GreedyAllocator()
         self.rng = random.Random(seed)
         self.log = deque(maxlen=80)

@@ -9,15 +9,24 @@ from time import perf_counter
 from engine.fleet import Fleet
 
 
-def run_case(coordination='window', robots=5, seed=42, ticks=600, jobs=20, interval=20):
+def run_case(coordination='window', robots=5, seed=42, ticks=600, jobs=20, interval=20,
+             allocator='greedy', burst=False):
+    """Ruleaza un scenariu si returneaza metricile.
+
+    burst=True: toate comenzile apar la tick 0 (test de stres pentru alocare).
+    makespan_ticks: tick-ul ultimei livrari, sau None daca au ramas comenzi nelivrate.
+    """
     if ticks < 1 or jobs < 0 or interval < 1:
         raise ValueError('ticks/interval trebuie sa fie pozitive; jobs >= 0.')
-    fleet = Fleet(robot_count=robots, seed=seed, coordination=coordination)
+    fleet = Fleet(robot_count=robots, seed=seed, coordination=coordination, allocator=allocator)
+    if burst:
+        for _ in range(jobs):
+            fleet.random_task()
     vertex_conflicts = edge_conflicts = 0
     max_step_ms = 0.0
     started = perf_counter()
     for index in range(ticks):
-        if index % interval == 0 and len(fleet.tasks) < jobs:
+        if not burst and index % interval == 0 and len(fleet.tasks) < jobs:
             fleet.random_task()
         before = [r.pos for r in fleet.robots]
         step_start = perf_counter()
@@ -30,14 +39,19 @@ def run_case(coordination='window', robots=5, seed=42, ticks=600, jobs=20, inter
                 edge_conflicts += after[i] == before[j] and after[j] == before[i]
     elapsed = perf_counter() - started
     latencies = sorted(t.completed_tick - t.created_tick for t in fleet.tasks if t.status == 'completed')
+    unfinished = len(fleet.tasks) - fleet.completed
+    makespan = max((t.completed_tick for t in fleet.tasks if t.status == 'completed'), default=None)
     return {
-        'coordination': coordination, 'robots': robots, 'seed': seed, 'ticks': ticks,
+        'coordination': coordination, 'allocator': allocator, 'burst': burst,
+        'robots': robots, 'seed': seed, 'ticks': ticks,
         'requested_jobs': jobs, 'interval': interval,
         'submitted': len(fleet.tasks), 'completed': fleet.completed,
-        'unfinished': len(fleet.tasks) - fleet.completed,
+        'unfinished': unfinished,
+        'makespan_ticks': makespan if unfinished == 0 and fleet.tasks else None,
         'throughput_per_tick': fleet.completed / ticks,
         'mean_latency_ticks': mean(latencies) if latencies else None,
         'p95_latency_ticks': latencies[math.ceil(.95 * len(latencies)) - 1] if latencies else None,
+        'max_latency_ticks': latencies[-1] if latencies else None,
         'distance_cells': sum(r.steps for r in fleet.robots),
         'wait_ticks': sum(r.wait_ticks for r in fleet.robots),
         'vertex_conflicts': vertex_conflicts, 'edge_conflicts': edge_conflicts,

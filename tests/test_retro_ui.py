@@ -129,7 +129,7 @@ def test_controls_fit_window_and_do_not_overlap_map(count):
 def test_startup_is_empty_without_demo_tasks(monkeypatch):
     monkeypatch.setenv('SDL_VIDEODRIVER', 'dummy')
     monkeypatch.setenv('SDL_AUDIODRIVER', 'dummy')
-    import fleet_ui
+    from ui import fleet_ui
     created = []
     def factory(**kwargs):
         fleet = Fleet(**kwargs)

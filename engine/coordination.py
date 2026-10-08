@@ -106,9 +106,20 @@ class ConservativeCoordinator:
         offset = (tick - 1) % len(robots)
         for robot in robots[offset:] + robots[:offset]:
             view = Grid(grid.width, grid.height)
-            view.blocked = grid.blocked | (occupied - {robot.pos}) | reserved
+            blocked_for_astar = grid.blocked | (occupied - {robot.pos}) | reserved
+            if robot.goal in blocked_for_astar:
+                blocked_for_astar.remove(robot.goal)
+            view.blocked = blocked_for_astar
+            
             route, _ = astar(view, robot.pos, robot.goal) if robot.goal is not None else (None, [])
-            route = route or [robot.pos]
+            
+            if route and len(route) > 1:
+                actual_blocked = grid.blocked | (occupied - {robot.pos}) | reserved
+                if route[1] in actual_blocked:
+                    route = [robot.pos]
+            else:
+                route = [robot.pos]
+                
             plans[robot.id] = route
             reserved.add(route[1] if len(route) > 1 else robot.pos)
         return plans

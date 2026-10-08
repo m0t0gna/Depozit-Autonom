@@ -1,109 +1,102 @@
-from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
-from fastapi.middleware.cors import CORSMiddleware
+"""Serverul FastAPI: expune motorul de flota prin REST si WebSocket.
+
+Pornire:  uvicorn api.server:app --reload     Documentatie interactiva: /docs
+"""
 import asyncio
-from typing import List
+import contextlib
+from contextlib import asynccontextmanager
+from typing import Literal
 
-from engine.fleet import Fleet
-from api.schemas import FleetState, RobotState, TaskState, TaskRequest, EditRequest
+from fastapi import FastAPI, HTTPException, Query
+from fastapi.middleware.cors import CORSMiddleware
 
-app = FastAPI(title="Micul Depozit API", version="2.0.0")
+from api.schemas import EditRequest, FleetState, TaskRequest
+from api.state import DEFAULT_ROBOTS, fleet_to_state, state
+from api.websocket import publish, router as websocket_router, simulation_loop
 
-# Permite Frontend-ului (React) să facă cereri către acest backend
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Porneste bucla de simulare la pornirea serverului si o opreste la inchidere."""
+    task = asyncio.create_task(simulation_loop())
+    yield
+    task.cancel()
+    with contextlib.suppress(asyncio.CancelledError):
+        await task
+
+
+app = FastAPI(title='Micul Depozit API', version='2.0.0', lifespan=lifespan)
+
+# Permite frontend-ului (React, in dezvoltare) sa cheme acest backend.
+# ATENTIE: "*" e acceptabil doar local; pentru publicare trebuie restrans la domeniul tau.
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], # Pentru producție ar trebui restricționat
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_origins=['*'],
+    allow_methods=['*'],
+    allow_headers=['*'],
 )
+app.include_router(websocket_router)
 
-# Starea globală a depozitului
-fleet = Fleet(robot_count=5)
-simulation_task = None
-simulation_running = False
 
-def get_fleet_state() -> FleetState:
-    """Convertește starea obiectelor Python în Pydantic models (JSON serializabil)"""
-    robots = []
-    for r in fleet.robots:
-        robots.append(RobotState(
-            id=r.id,
-            pos=r.pos,
-            home=r.home,
-            phase=r.phase,
-            task_id=r.task_id,
-            goal=r.goal,
-            steps=r.steps,
-            wait_ticks=r.wait_ticks,
-            deliveries=r.deliveries,
-            carrying=r.carrying
-        ))
-        
-    tasks = []
-    for t in fleet.tasks:
-        tasks.append(TaskState(
-            id=t.id,
-            pickup=t.pickup,
-            dropoff=t.dropoff,
-            status=t.status,
-            robot_id=t.robot_id
-        ))
+@app.get('/api/fleet', response_model=FleetState)
+async def get_state():
+    """Starea curenta a intregului depozit."""
+    return fleet_to_state(state.fleet)
 
-    return FleetState(
-        tick=fleet.tick,
-        robots=robots,
-        tasks=tasks,
-        grid_width=fleet.grid.width,
-        grid_height=fleet.grid.height,
-        blocked=list(fleet.grid.blocked),
-        dropoffs=fleet.dropoffs,
-        completed=fleet.completed,
-        pending=fleet.pending
-    )
 
-@app.get("/api/fleet", response_model=FleetState)
-def get_state():
-    """Returnează starea curentă a întregului depozit."""
-    return get_fleet_state()
+@app.post('/api/fleet/step', response_model=FleetState)
+async def step_simulation():
+    """Avanseaza simularea cu exact un tick."""
+    state.fleet.step()
+    await publish()
+    return fleet_to_state(state.fleet)
 
-@app.post("/api/fleet/step", response_model=FleetState)
-def step_simulation():
-    """Avansează simularea cu exact un 'tick'."""
-    fleet.step()
-    return get_fleet_state()
 
-@app.post("/api/fleet/task")
-def add_task(req: TaskRequest):
-    """Adaugă o nouă comandă manuală."""
+@app.post('/api/fleet/task')
+async def add_task(req: TaskRequest):
+    """Adauga o comanda: ridica de la `pickup` si livreaza la `dropoff`."""
     try:
-        fleet.add_task(req.pickup, req.dropoff)
-        return {"status": "ok"}
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        state.fleet.add_task(req.pickup, req.dropoff)
+    except ValueError as error:
+        raise HTTPException(status_code=400, detail=str(error))
+    await publish()
+    return {'status': 'ok'}
 
-@app.post("/api/fleet/task/random")
-def add_random_task():
-    """Adaugă o comandă aleatoare (pentru teste)."""
+
+@app.post('/api/fleet/task/random')
+async def add_random_task():
+    """Adauga o comanda aleatoare (utila pentru teste)."""
     try:
-        fleet.random_task()
-        return {"status": "ok"}
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        state.fleet.random_task()
+    except ValueError as error:
+        raise HTTPException(status_code=400, detail=str(error))
+    await publish()
+    return {'status': 'ok'}
 
-@app.post("/api/fleet/edit")
-def edit_map(req: EditRequest):
-    """Adaugă sau elimină un obstacol."""
-    success = fleet.edit(req.cell)
-    if not success:
-        raise HTTPException(status_code=400, detail="Nu poți modifica această celulă (robot, stație sau punct protejat).")
-    return {"status": "ok"}
 
-@app.post("/api/fleet/reset")
-def reset_fleet(robot_count: int = 5, coordination: str = 'window'):
-    """Resetează complet simularea."""
-    global fleet
-    fleet = Fleet(robot_count=robot_count, coordination=coordination)
-    return {"status": "ok"}
+@app.post('/api/fleet/edit')
+async def edit_map(req: EditRequest):
+    """Adauga sau elimina un perete la celula data."""
+    if not state.fleet.edit(req.cell):
+        raise HTTPException(status_code=400, detail='Celula nu poate fi modificata '
+                            '(robot, statie sau punct al unei comenzi active).')
+    await publish()
+    return {'status': 'ok'}
 
-# Importăm websocket-ul pentru a înregistra rutele WS pe instanța app
-import api.websocket
+
+@app.post('/api/fleet/reset', response_model=FleetState)
+async def reset_fleet(
+    robot_count: int = Query(DEFAULT_ROBOTS, ge=1, le=8),
+    coordination: Literal['window', 'conservative'] = 'window',
+    allocator: Literal['greedy', 'hungarian'] = 'greedy',
+):
+    """Reia simularea de la zero, cu numarul de roboti, coordonatorul si alocatorul alese.
+
+    Valorile invalide sunt respinse automat de FastAPI cu eroarea 422.
+    """
+    try:
+        state.reset(robot_count, coordination, allocator)
+    except ValueError as error:
+        raise HTTPException(status_code=400, detail=str(error))
+    await publish()
+    return fleet_to_state(state.fleet)

@@ -18,6 +18,8 @@ def heuristic(a, b):
 
 def astar(grid, start, goal):
     """Returneaza (drum, celule_explorate). drum = None daca nu exista cale."""
+    if not grid.is_free(start) or not grid.is_free(goal):
+        return None, []
     # Heap-ul compara tupluri; daca f e egal ar compara celulele intre ele.
     # Contorul "tie-breaker" evita asta si pastreaza ordinea inserarii.
     counter = itertools.count()
